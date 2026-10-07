@@ -16,15 +16,13 @@ public class Token {
         //constructor
     }
 
-    public TokenType getType() { 
-        return type; 
-    }
+    public TokenType getType() { return type; }
     public String getValue() { return value; }
     public int getLine() { return line; }
 
     @Override
     public String toString() {
     	//Complete the toString method
-        return value;
+        return ("|| Type = \"" + type + "\" || value = \"" + value + "\" || linenumber = \"" + line + "\" ||");
     }
 }

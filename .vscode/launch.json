@@ -1,0 +1,21 @@
+{
+    
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Starter",
+            "request": "launch",
+            "mainClass": "Starter",
+            "projectName": "Pokemon-Battle-Language_e1fd4e04"
+        },
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "mainapp.Main",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+    
+}

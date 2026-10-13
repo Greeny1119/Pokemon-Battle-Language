@@ -1,5 +1,3 @@
-
-
 import java.io.File;
 import java.util.List;
 
@@ -8,8 +6,12 @@ public class Starter {
 	public static void main(String[] args) {
 		
 		//put the code test case in string code
-		//File inputfile = new File(args[0]);
-		File inputfile = new File("./src/Tokenizer/testcode.txt");
+		File inputfile;
+		
+		if ((args.length > 0)) { inputfile = new File(args[0]); }
+		else { inputfile = new File("./src/Tokenizer/testcode.txt"); } //manual for run in vsc
+		System.out.println(inputfile.getAbsolutePath());
+		
 
 		
 		//init the arraylist for tokens and pass the code into the tokenizer

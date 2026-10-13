@@ -223,7 +223,6 @@ public class Tokenizer {
 			Pattern pattern = Pattern.compile(elem);
 			boolean found = pattern.matcher(string).find();
 			if (found) {
-				System.out.println(string + found + elem);
 				return TOKENTYPE_MAP.get(elem);
 			}
 		}

@@ -1,6 +1,11 @@
 Pokemon pokemon1 = Pokemon("./Pokemons/1.txt");
-String name = "";
+String name = ""; //testing 123
 pokemon1.hp = pokemon1.hp + 150;
 if(pokemon1.hp < 0) { print "Lost"; }
 pokemon1 move1 pokemon2;
-0hello = "hello"
+hello = "hello"
+testing = "hello
+world"
+test = "hello\""
+
+

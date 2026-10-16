@@ -5,13 +5,10 @@ public class Starter {
 
 	public static void main(String[] args) {
 		
-		//put the code test case in string code
+		//set the txt file to the input of the program
 		File inputfile;
-		
 		if ((args.length > 0)) { inputfile = new File(args[0]); }
-		else { inputfile = new File("./src/Tokenizer/testcode.txt"); } //manual for run in vsc
-		System.out.println(inputfile.getAbsolutePath());
-		
+		else { inputfile = new File("./src/Tokenizer/testcode.txt"); } //manual for run in vsc		
 
 		
 		//init the arraylist for tokens and pass the code into the tokenizer

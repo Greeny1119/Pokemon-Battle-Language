@@ -13,8 +13,7 @@ public class Tokenizer {
 	private static final Pattern OPSREGX = Pattern.compile("^(\\+|-|\\*|\\/|=|>|\\.|<|;|>=|<=|&|\\||%|!|\\^|\\(|\\))$");
 	
 	public static List<Token> tokenize(File inputFile) {
-		int linenumber = 0; //initilize the line numerb
-		
+		int linenumber = 0; //initilize the needed things
 		List<Token> tokens = new ArrayList<>();
 		List<String> errors = new ArrayList<>();
 		
@@ -23,48 +22,98 @@ public class Tokenizer {
 			String line; //the line for each part of the code
 			while ((line = filereader.readLine()) != null) {
 				linenumber+=1; //increase the line number for each iteration
-				String word = "";
-				//reset for future loops
-				//strings D:
-				for (int i = 0; i<=line.length()-1; i++) {
+				String word = ""; //reset for future loops
+
+
+
+				for (int i = 0; i<=line.length()-1; i++) { //start of looking through lines
 					String potentialchar = Character.toString(line.charAt(i)); //add the char that was looked at
-
-					//to do, instant string checks
-					if (potentialchar.equals("\"")) {
-
-						if (word.length() > 0) {
-							errors.add(Createtoken(word, linenumber, tokens));
-							word = "";
-						}
-
-						i++;
-						String innerstring = "\"";
-
-						while (i < line.length() && line.charAt(i) != '"') {
-							innerstring = innerstring + line.charAt(i);
-							i++;
-						}
-						
-						if (i < line.length() && line.charAt(i) == '"') {
-							innerstring = innerstring + "\"";
-						}
-
-
-
-
-						errors.add(Createtoken(innerstring, linenumber, tokens));
-						potentialchar = "";
-						continue; // Safely skip to the next loop iteration
-					}
-					
-					if (Character.isWhitespace(line.charAt(i))) { //the next char is whitespace
+					if (Character.isWhitespace(line.charAt(i))) { //if the next char is whitespace skip or send if there is chars already looked at
 						if (word.length() > 0) {
 							errors.add(Createtoken(word, linenumber, tokens));
 							word = "";
 						}
 						continue;
 					} 
+					//check for comment
+					if (potentialchar.equals("/")) {
+						if (i+1 < line.length() && line.charAt(i+1) == '/') {
+							if (word.length() > 0) {
+								errors.add(Createtoken(word, linenumber, tokens));
+								word = "";
+							}
+							break;
+						} 
+					}
+					//if we find a " wait till we find the next one for a string literal
+					if (potentialchar.equals("\"")) {
+						if (word.length() < 0) {
+							errors.add(Createtoken(word, linenumber, tokens));
+							word = "";
+						}
+						String innerstring = "\"";
+						boolean unclosedError = false;
+						do { //loop for adding the char in string
+							i++;
+							if (i >= line.length()) { //if reached end of a line add a new line
+								innerstring += '\n';
+								if ((line = filereader.readLine()) == null) {
+										System.out.println("Error: You have an unclosed string at the end of the file.");
+										unclosedError = true;
+										break; 
+								} 
+								i = 0;
+								linenumber++;
+							} else if (line.charAt(i) == '"') { //
+								innerstring += '"';
+								break;
+							}
+							//for escape chars (will change it from printing /n to using the actual new line or ex)
+							if (i < line.length()) {
+								if (line.charAt(i) == '\\') { //excape situation
+									if (i+1 < line.length()) {
+										char nextChar = line.charAt(i + 1);
+										
+										// Convert specific escape sequences to real special characters
+										System.out.println(innerstring + nextChar);
+										switch (nextChar) {
+											case 'n':  innerstring += "\n"; break; 
+											case 't':  innerstring += "\t"; break; 
+											case 'b':  innerstring += "\b"; break; 
+											case 'r':  innerstring += "\r"; break; 
+											case '"':  innerstring += "\""; break; 
+											case '\\': innerstring += "\\"; break; 
+											default: 
+												// If it's an unrecognized escape (like \p), just keep both
+												
+												innerstring = innerstring + line.charAt(i) + nextChar;
+												break;
+										} i++;
+										} else {
+											//if a backslash sitting right at the end of a line
+											innerstring += '\\';
+										}
+								} else { 
+									innerstring += line.charAt(i); 
+								}
+							}
 
+							
+							
+						} while (true);
+
+						if (unclosedError) {
+							break;
+						} 
+						System.out.println(innerstring);
+						errors.add(Createtoken(innerstring, linenumber, tokens));
+						potentialchar = "";
+						continue;
+					}	
+					
+
+
+					//for operators
 					else if (OPSREGX.matcher(potentialchar).matches()) {
 						if (word.length() > 0) {
 							errors.add(Createtoken(word, linenumber, tokens));
@@ -85,6 +134,7 @@ public class Tokenizer {
 						
 					word = word + potentialchar;
 	  	 		}
+				//send the last chars
 				if (word.length() > 0) {
 					errors.add(Createtoken(word, linenumber, tokens));
 				}
@@ -106,7 +156,7 @@ public class Tokenizer {
 	    //return the tokens in the input code	    
 	}
 	private static final String[] tokenpatterns = {
-				"^Pokemon$", // Pokemon Keyword
+		"^Pokemon$", // Pokemon Keyword
 		"^int$", // int keyword
 		"^String$", // String keyword
 		"^boolean$", // boolean keyword
@@ -131,7 +181,7 @@ public class Tokenizer {
 		"^false$",
 		"^[a-zA-Z_]([a-zA-Z_]|[0-9])*$", // Identifiers
 		"^(?:0|[1-9][0-9]*)$", // Int Literal
-		"^\"[^\"]*\"$", // String Literals
+		"^\\\"[\\s\\S]*\\\"$", // String Literals
 		"^=$", // Assignment operator
 		"^==$", // Compare Operator
 		"^\\+\\+$",
@@ -188,7 +238,7 @@ public class Tokenizer {
         entry("^false$", TokenType.OP_FALSE),
         entry("^[a-zA-Z_]([a-zA-Z_]|[0-9])*$", TokenType.IDENTIFIER),
         entry("^(?:0|[1-9][0-9]*)$", TokenType.INT_LITERAL),
-        entry("^\"[^\"]*\"$", TokenType.STRING_LITERAL),
+        entry("^\\\"[\\s\\S]*\\\"$", TokenType.STRING_LITERAL),
 
         // Operators and Symbols
         entry("^=$", TokenType.OP_ASSIGN),

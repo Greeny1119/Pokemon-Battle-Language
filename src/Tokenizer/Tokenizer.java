@@ -10,21 +10,18 @@ import static java.util.Map.entry;
 import java.util.regex.Pattern;
 
 public class Tokenizer {
-	private static final Pattern OPSREGX = Pattern.compile("^(\\+|-|\\*|\\/|=|>|\\.|<|;|>=|<=|&|\\||%|!|\\^|\\(|\\))$");
+	private static final Pattern OPSREGX = Pattern.compile("^(,|\\+|-|\\*|\\/|=|>|\\.|<|;|>=|<=|&|\\||%|!|\\^|\\(|\\))$");
 	
 	public static List<Token> tokenize(File inputFile) {
 		int linenumber = 0; //initilize the needed things
 		List<Token> tokens = new ArrayList<>();
 		List<String> errors = new ArrayList<>();
-		
 
 	    try (BufferedReader filereader = new BufferedReader(new FileReader(inputFile))) {	    
 			String line; //the line for each part of the code
 			while ((line = filereader.readLine()) != null) {
 				linenumber+=1; //increase the line number for each iteration
 				String word = ""; //reset for future loops
-
-
 
 				for (int i = 0; i<=line.length()-1; i++) { //start of looking through lines
 					String potentialchar = Character.toString(line.charAt(i)); //add the char that was looked at
@@ -36,14 +33,12 @@ public class Tokenizer {
 						continue;
 					} 
 					//check for comment
-					if (potentialchar.equals("/")) {
-						if (i+1 < line.length() && line.charAt(i+1) == '/') {
-							if (word.length() > 0) {
-								errors.add(Createtoken(word, linenumber, tokens));
-								word = "";
-							}
-							break;
-						} 
+					if (potentialchar.equals("/") && i+1 < line.length() && line.charAt(i+1) == '/') {
+						if (word.length() > 0) {
+							errors.add(Createtoken(word, linenumber, tokens));
+							word = "";
+						}
+						break;
 					}
 					//if we find a " wait till we find the next one for a string literal
 					if (potentialchar.equals("\"")) {
@@ -74,9 +69,7 @@ public class Tokenizer {
 									if (i+1 < line.length()) {
 										char nextChar = line.charAt(i + 1);
 										
-										// Convert specific escape sequences to real special characters
-										System.out.println(innerstring + nextChar);
-										switch (nextChar) {
+										switch (nextChar) { // Convert specific escape sequences to real special characters
 											case 'n':  innerstring += "\n"; break; 
 											case 't':  innerstring += "\t"; break; 
 											case 'b':  innerstring += "\b"; break; 
@@ -89,23 +82,20 @@ public class Tokenizer {
 												innerstring = innerstring + line.charAt(i) + nextChar;
 												break;
 										} i++;
-										} else {
-											//if a backslash sitting right at the end of a line
-											innerstring += '\\';
-										}
+									} else {
+										//if a backslash sitting right at the end of a line
+										innerstring += '\\';
+									}
 								} else { 
 									innerstring += line.charAt(i); 
 								}
 							}
-
 							
 							
 						} while (true);
-
 						if (unclosedError) {
 							break;
 						} 
-						System.out.println(innerstring);
 						errors.add(Createtoken(innerstring, linenumber, tokens));
 						potentialchar = "";
 						continue;

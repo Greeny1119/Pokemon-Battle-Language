@@ -7,5 +7,9 @@ hello = "hello"
 testing = "hello
 world"
 test = "hello\""
+function hello(String testing,,int interger) {
+    print testing;
+    print interger;
+}
 
 
